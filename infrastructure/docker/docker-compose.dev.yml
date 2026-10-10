@@ -1,0 +1,92 @@
+# Local development stack: Postgres, Redis, MinIO (S3-compatible), API and worker.
+# Usage (from repository root):
+#   cp backend/.env.example backend/.env   # set TOKEN_SECRET and optionally ANTHROPIC_API_KEY
+#   docker compose -f infrastructure/docker/docker-compose.dev.yml up --build
+name: one-minute-docs
+
+x-backend: &backend
+  build: ../../backend
+  env_file: ../../backend/.env
+  environment:
+    NODE_ENV: development
+    DATABASE_URL: postgres://omd:omd@postgres:5432/omd
+    REDIS_URL: redis://redis:6379/0
+    STORAGE_DRIVER: s3
+    S3_BUCKET: omd-dev
+    S3_ENDPOINT: http://minio:9000
+    S3_FORCE_PATH_STYLE: "true"
+    AWS_ACCESS_KEY_ID: minioadmin
+    AWS_SECRET_ACCESS_KEY: minioadmin
+    PDF_TO_DOCX_ENGINE: pdf2docx
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+    minio-setup: { condition: service_completed_successfully }
+  read_only: true
+  tmpfs: ["/tmp:size=2g"]
+  cap_drop: ["ALL"]
+  security_opt: ["no-new-privileges:true"]
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: omd, POSTGRES_PASSWORD: omd, POSTGRES_DB: omd }
+    ports: ["5432:5432"]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "omd"], interval: 5s, retries: 10 }
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck: { test: ["CMD", "redis-cli", "ping"], interval: 5s, retries: 10 }
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address :9001
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [miniodata:/data]
+
+  minio-setup:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    depends_on: [minio]
+    entrypoint: >
+      /bin/sh -c "until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done;
+      mc mb --ignore-existing local/omd-dev && mc anonymous set none local/omd-dev && mc ilm rule add --expire-days 1 local/omd-dev || true"
+
+  api:
+    <<: *backend
+    environment:
+      ROLE: api
+      NODE_ENV: development
+      DATABASE_URL: postgres://omd:omd@postgres:5432/omd
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_DRIVER: s3
+      S3_BUCKET: omd-dev
+      S3_ENDPOINT: http://minio:9000
+      S3_FORCE_PATH_STYLE: "true"
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      PDF_TO_DOCX_ENGINE: pdf2docx
+    ports: ["8080:8080"]
+
+  worker:
+    <<: *backend
+    environment:
+      ROLE: worker
+      NODE_ENV: development
+      DATABASE_URL: postgres://omd:omd@postgres:5432/omd
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_DRIVER: s3
+      S3_BUCKET: omd-dev
+      S3_ENDPOINT: http://minio:9000
+      S3_FORCE_PATH_STYLE: "true"
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      PDF_TO_DOCX_ENGINE: pdf2docx
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 2g }
+
+volumes:
+  pgdata:
+  miniodata:
