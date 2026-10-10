@@ -1,0 +1,29 @@
+# Gradle / Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
+
+# Node
+node_modules/
+dist/
+coverage/
+*.log
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+backend/storage-data/
+
+# OS
+.DS_Store
