@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  shared-kotlin:
+    name: Shared Kotlin modules
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libreoffice-writer-nogui
+      - run: ./gradlew -p shared test --stacktrace
+        working-directory: android
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: shared-test-reports, path: android/shared/*/build/reports/tests, if-no-files-found: ignore }
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: omd, POSTGRES_PASSWORD: omd, POSTGRES_DB: omd_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U omd" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run: { working-directory: backend }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm, cache-dependency-path: backend/package-lock.json }
+      - name: Install document engines
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libreoffice-writer-nogui libreoffice-draw-nogui \
+            tesseract-ocr tesseract-ocr-eng tesseract-ocr-hin poppler-utils qpdf ghostscript fonts-noto-core python3-venv unzip
+          python3 -m venv /opt/venv && /opt/venv/bin/pip install -q pdf2docx==0.5.13 python-docx==1.2.0
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm run test:all
+        env:
+          TEST_DATABASE_URL: postgres://omd:omd@localhost:5432/omd_test
+          TEST_REDIS_URL: redis://localhost:6379/15
+          PYTHON_BIN: /opt/venv/bin/python
+
+  android:
+    name: Android build, unit tests, lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build, unit test and lint
+        working-directory: android
+        run: ./gradlew assembleDebug testDebugUnitTest lintDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-reports
+          path: |
+            android/**/build/reports/lint-results-*.html
+            android/**/build/reports/tests
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with: { name: app-debug-apk, path: android/app/build/outputs/apk/debug/*.apk }

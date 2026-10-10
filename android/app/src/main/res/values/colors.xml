@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_ink">#FF1B3A6B</color>
+    <color name="brand_amber">#FFE08A00</color>
+    <color name="brand_paper">#FFF8F9FC</color>
+    <color name="brand_night">#FF111418</color>
+    <color name="ic_launcher_background">#FF1B3A6B</color>
+</resources>
