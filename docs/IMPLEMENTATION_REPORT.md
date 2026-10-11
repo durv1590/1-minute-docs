@@ -1,6 +1,6 @@
 # Implementation Report
 
-Latest fully green CI: [run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337) (shared Kotlin, backend, Android build/lint/unit tests, Android instrumented tests on the emulator).
+Latest fully green CI: [run #13](https://github.com/durv1590/1-minute-docs/actions/runs/38107570841) (shared Kotlin, backend, Android build/lint/unit tests, Android instrumented tests on the emulator).
 
 Branch `claude/eloquent-knuth-xz3j16`. This report states only what has been built and what evidence exists. "Compiles" means
 the code builds and passes Android lint in GitHub Actions. It does **not** mean the feature was exercised on a device.
@@ -19,9 +19,9 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 | Suite | Where it runs | Result |
 |---|---|---|
 | `android/shared` (domain, document, imaging): 97 JUnit 5 tests | Locally and CI job `shared-kotlin` | Pass |
-| Backend unit tests (26) and e2e tests (32) against real Postgres, Redis, LibreOffice, Tesseract, poppler, qpdf, pikepdf and the opt-in Ghostscript/pdf2docx engines | Locally and CI job `backend` | Pass |
-| Android `assembleDebug`, `lintDebug`, `testDebugUnitTest` | CI job `android` | Pass ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
-| Android instrumented tests: `PdfEngineTest` (8 tests, PdfBox/PdfRenderer/PdfDocument on a real Android runtime) and `UiJourneysTest` (3 Compose tests) | CI job `android-instrumented` (emulator API 34) | Pass: 11/11 on emulator API 34 ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
+| Backend unit tests (26) and e2e tests (32; 58 backend tests in total) against real Postgres, Redis, LibreOffice, Tesseract, poppler, qpdf, pikepdf and the opt-in Ghostscript/pdf2docx engines | Locally and CI job `backend` | Pass |
+| Android `assembleDebug`, `lintDebug`, `testDebugUnitTest` | CI job `android` | Pass ([run #13](https://github.com/durv1590/1-minute-docs/actions/runs/38107570841)) |
+| Android instrumented tests: `PdfEngineTest` (8 tests, PdfBox/PdfRenderer/PdfDocument on a real Android runtime) and `UiJourneysTest` (3 Compose tests) | CI job `android-instrumented` (emulator API 34) | Pass: 11/11 on emulator API 34 ([run #13](https://github.com/durv1590/1-minute-docs/actions/runs/38107570841)) |
 | Physical-device manual journeys J1–J8 (`RELEASE_CHECKLIST.md`) | — | **Not run** |
 | Backend performance baseline (job durations per engine) | Dev container, `npm run bench` → `docs/results/backend-baseline.md` | Measured |
 | Device performance baselines | — | **Not measured** |
