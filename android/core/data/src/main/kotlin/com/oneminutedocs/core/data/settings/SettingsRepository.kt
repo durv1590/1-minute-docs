@@ -71,12 +71,24 @@ class SettingsRepository @Inject constructor(
 
     suspend fun current(): AppSettings = settings.first()
 
-    suspend fun setOnboardingDone() = context.dataStore.edit { it[Keys.onboarding] = true }
-    suspend fun setTheme(t: ThemePreference) = context.dataStore.edit { it[Keys.theme] = t.name }
-    suspend fun setDefaultPageSize(s: PageSize) = context.dataStore.edit { it[Keys.pageSize] = s.name }
-    suspend fun setDefaultMargins(m: Margins) = context.dataStore.edit { it[Keys.margins] = m.name }
-    suspend fun setRecognitionLanguage(l: RecognitionLanguage) = context.dataStore.edit { it[Keys.recognition] = l.name }
-    suspend fun setCloudConsentRemembered(v: Boolean) = context.dataStore.edit { it[Keys.cloudConsent] = v }
+    suspend fun setOnboardingDone() {
+        context.dataStore.edit { it[Keys.onboarding] = true }
+    }
+    suspend fun setTheme(t: ThemePreference) {
+        context.dataStore.edit { it[Keys.theme] = t.name }
+    }
+    suspend fun setDefaultPageSize(s: PageSize) {
+        context.dataStore.edit { it[Keys.pageSize] = s.name }
+    }
+    suspend fun setDefaultMargins(m: Margins) {
+        context.dataStore.edit { it[Keys.margins] = m.name }
+    }
+    suspend fun setRecognitionLanguage(l: RecognitionLanguage) {
+        context.dataStore.edit { it[Keys.recognition] = l.name }
+    }
+    suspend fun setCloudConsentRemembered(v: Boolean) {
+        context.dataStore.edit { it[Keys.cloudConsent] = v }
+    }
 
     /** Returns the stored client token if present and not about to expire. */
     override suspend fun clientToken(): String? {

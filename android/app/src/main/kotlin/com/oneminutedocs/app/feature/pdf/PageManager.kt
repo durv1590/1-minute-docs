@@ -129,7 +129,7 @@ class PageManagerViewModel @Inject constructor(
     fun rotate(pos: Int) = edit { l -> l.mapIndexed { i, p -> if (i == pos) p.copy(rotation = (p.rotation + 90) % 360) else p } }
     fun toggleDelete(pos: Int) = edit { l -> l.mapIndexed { i, p -> if (i == pos) p.copy(deleted = !p.deleted) else p } }
     fun toggleSelect(pos: Int) { pages.value = pages.value.mapIndexed { i, p -> if (i == pos) p.copy(selected = !p.selected) else p } }
-    fun move(pos: Int, delta: Int) = edit { l ->
+    fun movePage(pos: Int, delta: Int) = edit { l ->
         val target = pos + delta
         if (target !in l.indices) l else l.toMutableList().apply { add(target, removeAt(pos)) }
     }
@@ -193,12 +193,12 @@ fun PageManagerScreen(onBack: () -> Unit, onDone: (OpState.Done) -> Unit, vm: Pa
                             Text("${p.sourceIndex + 1}", style = MaterialTheme.typography.labelLarge)
                         }
                         Row {
-                            IconButton(onClick = { vm.move(pos, -1) }, enabled = pos > 0) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.action_move_up)) }
+                            IconButton(onClick = { vm.movePage(pos, -1) }, enabled = pos > 0) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.action_move_up)) }
                             IconButton(onClick = { vm.rotate(pos) }) { Icon(Icons.Outlined.RotateRight, stringResource(R.string.action_rotate)) }
                             IconButton(onClick = { vm.toggleDelete(pos) }) {
                                 Icon(if (p.deleted) Icons.Outlined.RestoreFromTrash else Icons.Outlined.Delete, stringResource(if (p.deleted) R.string.action_restore else R.string.action_delete))
                             }
-                            IconButton(onClick = { vm.move(pos, 1) }, enabled = pos < pages.lastIndex) { Icon(Icons.AutoMirrored.Outlined.ArrowForward, stringResource(R.string.action_move_down)) }
+                            IconButton(onClick = { vm.movePage(pos, 1) }, enabled = pos < pages.lastIndex) { Icon(Icons.AutoMirrored.Outlined.ArrowForward, stringResource(R.string.action_move_down)) }
                         }
                     }
                 }

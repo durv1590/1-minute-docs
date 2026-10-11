@@ -83,6 +83,10 @@ jobs:
           status=${PIPESTATUS[0]}
           echo "::group::Error summary"
           grep -E "^e: |What went wrong|^> Task .*FAILED|Lint found|tests completed|failed$" build.log | sed -E 's#file:///home/runner/work/1-minute-docs/1-minute-docs/android/##' | head -150
+          echo "--- lint errors ---"
+          find . -name "lint-results-debug.txt" -path "*lint_intermediate_text_report*" -exec grep -h -A2 ": Error:" {} + | sed -E 's#^.*/android/##' | head -60
+          echo "--- failing tests ---"
+          grep -rh -A4 "<failure" --include="*.xml" . 2>/dev/null | cut -c1-400 | head -60
           echo "::endgroup::"
           exit $status
       - uses: actions/upload-artifact@v4

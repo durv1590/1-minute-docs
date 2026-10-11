@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
+import android.graphics.text.LineBreaker
 import android.text.Layout
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -256,9 +257,9 @@ class TextPdfWriter @Inject constructor() {
                 .setAlignment(alignment)
                 .setLineSpacing(0f, o.lineSpacing)
                 .setIncludePad(false)
-                .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
+                .setBreakStrategy(LineBreaker.BREAK_STRATEGY_HIGH_QUALITY)
                 .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
-                .setJustificationMode(if (align == Alignment.JUSTIFY) Layout.JUSTIFICATION_MODE_INTER_WORD else Layout.JUSTIFICATION_MODE_NONE)
+                .setJustificationMode(if (align == Alignment.JUSTIFY) LineBreaker.JUSTIFICATION_MODE_INTER_WORD else LineBreaker.JUSTIFICATION_MODE_NONE)
                 .build()
         }
     }
