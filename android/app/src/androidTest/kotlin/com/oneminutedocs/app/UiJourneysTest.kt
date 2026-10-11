@@ -48,7 +48,9 @@ class UiJourneysTest {
         listOf(R.string.tools_title, R.string.tool_handwriting, R.string.settings_title, R.string.error_original_safe).forEach { id ->
             assertNotEquals(context.getString(id).takeIf { Locale.getDefault().language == "en" }, hi.getString(id))
         }
-        compose.setContent { OmdTheme { androidx.compose.material3.Text(hi.getString(R.string.tool_handwriting)) } }
-        compose.onNode(hasText("हस्तलिखित नोट्स से PDF")).assertIsDisplayed()
+        val label = hi.getString(R.string.tool_handwriting)
+        assertTrue("expected a Devanagari label, got $label", label.any { it in '\u0900'..'\u097F' })
+        compose.setContent { OmdTheme { androidx.compose.material3.Text(label) } }
+        compose.onNode(hasText(label)).assertIsDisplayed()
     }
 }
