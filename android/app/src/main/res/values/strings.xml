@@ -82,7 +82,7 @@
     <string name="ai_generating">Writing your draft…</string>
     <string name="ai_grammar">Fix spelling and grammar</string>
     <string name="ai_organize">Organise as notes</string>
-    <string name="ai_privacy_note">Your details are sent to our server and an AI provider only to write this draft. They are not stored after the request or used for training.</string>
+    <string name="ai_privacy_note">Your details are sent to our server and our AI provider (Anthropic) only to write this draft. Our server does not keep them after the request; the provider processes them under its API terms.</string>
     <string name="ai_prompt">Anything else? (optional instructions)</string>
     <string name="ai_recipient">Recipient (optional)</string>
     <string name="ai_review_notice">This text was produced or changed by AI. Check facts, names and numbers before sharing.</string>

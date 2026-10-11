@@ -24,7 +24,7 @@ enum class ToolId(
     SIGN_PDF(ToolCategory.PDF_TOOLS, setOf(DocumentFormat.PDF), setOf(DocumentFormat.PDF), Availability.OFFLINE, keywords = listOf("signature", "sign")),
     PDF_TO_IMAGES(ToolCategory.CONVERSION, setOf(DocumentFormat.PDF), setOf(DocumentFormat.PNG, DocumentFormat.JPEG), Availability.OFFLINE, keywords = listOf("jpg", "png", "export")),
     PDF_TO_WORD(ToolCategory.CONVERSION, setOf(DocumentFormat.PDF), setOf(DocumentFormat.DOCX), Availability.OFFLINE_WITH_ONLINE_ENHANCEMENT, keywords = listOf("docx", "word", "editable")),
-    WORD_TO_PDF(ToolCategory.CONVERSION, setOf(DocumentFormat.DOCX, DocumentFormat.DOC, DocumentFormat.ODT, DocumentFormat.RTF), setOf(DocumentFormat.PDF), Availability.INTERNET_REQUIRED, keywords = listOf("docx", "office")),
+    WORD_TO_PDF(ToolCategory.CONVERSION, setOf(DocumentFormat.DOCX, DocumentFormat.DOC, DocumentFormat.ODT, DocumentFormat.RTF), setOf(DocumentFormat.PDF), Availability.OFFLINE_WITH_ONLINE_ENHANCEMENT, keywords = listOf("docx", "office")),
     PROTECT_PDF(ToolCategory.SECURITY, setOf(DocumentFormat.PDF), setOf(DocumentFormat.PDF), Availability.OFFLINE, keywords = listOf("password", "encrypt", "lock")),
     UNLOCK_PDF(ToolCategory.SECURITY, setOf(DocumentFormat.PDF), setOf(DocumentFormat.PDF), Availability.OFFLINE, keywords = listOf("password", "decrypt", "remove")),
     SCAN_DOCUMENT(ToolCategory.SCAN, IMAGE_FORMATS, setOf(DocumentFormat.PDF), Availability.OFFLINE, keywords = listOf("camera", "scanner")),

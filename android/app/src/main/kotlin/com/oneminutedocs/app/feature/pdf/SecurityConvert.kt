@@ -255,7 +255,7 @@ fun ConvertScreen(onBack: () -> Unit, onDone: (OpState.Done) -> Unit, vm: Conver
     val pickers = rememberPickers(vm::addUris)
     ToolScaffold(
         stringResource(if (vm.toWord) R.string.tool_pdf_to_word else R.string.tool_word_to_pdf), onBack,
-        if (vm.toWord) Availability.OFFLINE_WITH_ONLINE_ENHANCEMENT else Availability.INTERNET_REQUIRED,
+        Availability.OFFLINE_WITH_ONLINE_ENHANCEMENT,
     ) {
         if (OperationStatus(op, vm::cancel, vm::dismissResult, onDone)) return@ToolScaffold
         InputFileList(inputs)
