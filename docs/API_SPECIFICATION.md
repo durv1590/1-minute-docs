@@ -32,9 +32,9 @@ client that created them; another client's job ID returns 404.
 | `operation` | Inputs (sniffed by content) | `options` | Output |
 |---|---|---|---|
 | `office_to_pdf` | 1 × DOCX/DOC/ODT/RTF | `{}` | PDF (LibreOffice) |
-| `pdf_to_docx` | 1 × PDF | `{ocrLanguage: eng\|hin\|eng+hin}` | DOCX; `meta.mode` = `layout` (pdf2docx/LibreOffice) or `ocr_text` (scanned → Tesseract) |
+| `pdf_to_docx` | 1 × PDF | `{ocrLanguage: eng\|hin\|eng+hin}` | DOCX; `meta.mode` = `layout` (`meta.engine` `text` default, `pdf2docx` or `libreoffice`) or `ocr_text` (scanned → Tesseract); `meta.warnings` may include `LAYOUT_APPROXIMATE`, `TABLES_AND_IMAGES_NOT_PRESERVED`, `SCANNED_LAYOUT_NOT_PRESERVED` |
 | `ocr` | 1 × PDF/JPEG/PNG | `{language, output: txt\|pdf}` | UTF-8 text (pages separated by `\f`) or searchable PDF |
-| `compress_pdf` | 1 × PDF | `{preset: high_quality\|balanced\|small_file}` | PDF; `meta.originalBytes`, `outputBytes`, `reductionPercent`, `notSmaller` |
+| `compress_pdf` | 1 × PDF | `{preset: high_quality\|balanced\|small_file}` | PDF; `meta.engine` (`pikepdf` default or `ghostscript`), `originalBytes`, `outputBytes`, `reductionPercent`, `notSmaller` |
 | `handwriting_recognize` | 1–20 × JPEG/PNG/WEBP (≤5 MB each) | `{language: en\|hi\|auto, consent: true}` | UTF-8 text, pages separated by `\f`; `meta.aiGenerated = true` |
 
 ### Job object

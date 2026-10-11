@@ -5,7 +5,7 @@ import { AiProvider, AiProviderError } from '../ai/ai-provider';
 import { HANDWRITING_SYSTEM, handwritingInstructions } from '../ai/prompts';
 import { detectFormat } from '../files/file-inspector';
 import type { Operation } from '../jobs/operations';
-import { compressPdf, EngineContext, ocrPages, officeToPdf, pdfBins, pdfToDocxLayout, pdfToDocxLibreOffice, rasterizePdf, textPagesToDocx } from './engines/engines';
+import { compressPdf, EngineContext, ocrPages, officeToPdf, pdfBins, pdfToDocxLayout, pdfToDocxLibreOffice, pdfToDocxText, rasterizePdf, textPagesToDocx } from './engines/engines';
 import { ProcessingError } from './engines/exec';
 import { inspectPdf, textDensity, validatePdf } from './engines/pdf-tools';
 
@@ -75,7 +75,8 @@ export function processors(ai: AiProvider | null): Record<Operation, Processor> 
           };
         }
         const engine = ctx.config.PDF_TO_DOCX_ENGINE;
-        const { path, warnings } = engine === 'pdf2docx' ? await pdfToDocxLayout(ctx, input.path) : await pdfToDocxLibreOffice(ctx, input.path);
+        const convert = { text: pdfToDocxText, pdf2docx: pdfToDocxLayout, libreoffice: pdfToDocxLibreOffice }[engine];
+        const { path, warnings } = await convert(ctx, input.path);
         await ctx.progress(90);
         return {
           outputPath: path,
@@ -108,7 +109,7 @@ export function processors(ai: AiProvider | null): Record<Operation, Processor> 
       async run(ctx, [input], options) {
         const preset = String(options.preset ?? 'balanced');
         await ctx.progress(10);
-        const out = await compressPdf(ctx, input.path, preset);
+        const { path: out, engine } = await compressPdf(ctx, input.path, preset);
         await ctx.progress(90);
         const pages = await validatePdf(pdfBins(ctx.config), out, ctx.workDir, ctx.timeLeft());
         const originalBytes = (await stat(input.path)).size;
@@ -119,7 +120,7 @@ export function processors(ai: AiProvider | null): Record<Operation, Processor> 
           meta: {
             pages,
             preset,
-            engine: 'ghostscript',
+            engine,
             originalBytes,
             outputBytes,
             reductionPercent: Math.round(((originalBytes - outputBytes) * 1000) / originalBytes) / 10,

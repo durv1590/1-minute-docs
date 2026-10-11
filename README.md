@@ -14,8 +14,8 @@ docs/               Requirements, architecture, ADRs, plans, API, security, test
 ## Quick start
 
 ### Backend (local, without Docker)
-Requirements: Node 22, PostgreSQL 16, Redis 7, LibreOffice, Tesseract (`eng`, `hin`), poppler-utils, qpdf, Ghostscript,
-Python 3 with `pdf2docx` and `python-docx`.
+Requirements: Node 22, PostgreSQL 16, Redis 7, LibreOffice, Tesseract (`eng`, `hin`), poppler-utils, qpdf,
+Python 3 with `python-docx`, `pikepdf` and `Pillow`. The opt-in engines also need Ghostscript and `pdf2docx` (AGPL; ADR-0007).
 ```bash
 cd backend
 cp .env.example .env            # set TOKEN_SECRET (openssl rand -base64 48); ANTHROPIC_API_KEY to enable AI
@@ -46,7 +46,8 @@ offline still works. Signing: see `docs/SIGNING.md`.
 ## Configuration reference
 All backend settings are environment variables documented in `backend/.env.example` (limits, retention, AI model,
 engine paths, storage). Notable: `AI_PROVIDER`, `ANTHROPIC_API_KEY`, `AI_MODEL` (default `claude-opus-5-5`),
-`PDF_TO_DOCX_ENGINE` (must be set in production — licensing decision, see `docs/DEPENDENCY_REGISTER.md`).
+`PDF_TO_DOCX_ENGINE` (`text` default, `pdf2docx`, `libreoffice`) and `COMPRESS_ENGINE` (`pikepdf` default, `ghostscript`); the
+defaults contain no AGPL code (ADR-0007, `docs/DEPENDENCY_REGISTER.md`).
 
 ## Documentation
 | Document | Contents |
@@ -66,5 +67,5 @@ engine paths, storage). Notable: `AI_PROVIDER`, `ANTHROPIC_API_KEY`, `AI_MODEL` 
 - `AI_NOT_CONFIGURED` (503): set `ANTHROPIC_API_KEY` on the backend; the app never contains provider keys.
 - Jobs stay `QUEUED`: a worker must run (`ROLE=all` or a separate `ROLE=worker` process) and reach Redis.
 - `SERVICE_UNAVAILABLE` job errors: an engine binary is missing; check `*_BIN` variables and installed Tesseract languages (`tesseract --list-langs`).
-- Production refuses to start: read the message — usually `TOKEN_SECRET` too short/placeholder or `PDF_TO_DOCX_ENGINE` not set.
+- Production refuses to start: read the message — usually `TOKEN_SECRET` too short or a placeholder.
 - Android emulator cannot reach the backend: use `10.0.2.2`, and check the debug network-security config allows cleartext only for local hosts.

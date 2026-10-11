@@ -55,7 +55,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libreoffice-writer-nogui libreoffice-draw-nogui \
             tesseract-ocr tesseract-ocr-eng tesseract-ocr-hin poppler-utils qpdf ghostscript fonts-noto-core python3-venv unzip
-          python3 -m venv /opt/venv && /opt/venv/bin/pip install -q pdf2docx==0.5.13 python-docx==1.2.0
+          python3 -m venv /opt/venv && /opt/venv/bin/pip install -q pdf2docx==0.5.13 python-docx==1.2.0 pikepdf==9.4.2 Pillow==12.3.0
       - run: npm ci
       - run: npm run lint
       - run: npm run build

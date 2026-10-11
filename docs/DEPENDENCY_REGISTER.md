@@ -37,14 +37,16 @@ Shared Kotlin modules (`android/shared`) have no runtime dependencies beyond the
 ## Backend engines (separate processes in the worker image)
 | Engine | Licence | Notes |
 |---|---|---|
-| LibreOffice 24.x | MPL-2.0 | Office → PDF; optional PDF → DOCX fallback |
+| LibreOffice 24.x | MPL-2.0 | Office → PDF; opt-in PDF → DOCX engine (`libreoffice`, mis-orders Devanagari) |
 | Tesseract 5 + eng/hin data | Apache-2.0 | OCR, searchable PDF |
-| Poppler utils (pdftoppm, pdftotext) | GPL-2.0/3.0 | Invoked as separate executables, unmodified |
+| Poppler utils (pdftoppm, pdftotext) | GPL-2.0/3.0 | Invoked as separate executables, unmodified. `pdftotext -bbox-layout` feeds the default PDF → DOCX engine |
 | qpdf 11 | Apache-2.0 | Validation, page assembly |
-| Ghostscript 10 | ⚠ AGPL-3.0 (or Artifex commercial) | Compression. Run unmodified as a separate process; review AGPL obligations (offer corresponding source) or buy a commercial licence before launch. |
-| pdf2docx 0.5.13 | MIT | PDF → DOCX layout reconstruction |
-| PyMuPDF 1.28 (pdf2docx dependency) | ⚠ AGPL-3.0 or Artifex commercial | **Decision required.** Production refuses to start until `PDF_TO_DOCX_ENGINE` is set: `pdf2docx` (needs AGPL compliance or commercial licence) or `libreoffice` (MPL, lower quality — text boxes instead of flowing text). |
-| python-docx 1.2.0 | MIT | DOCX from OCR text |
+| pikepdf 9.4.2 (+ qpdf) | MPL-2.0 (qpdf Apache-2.0) | Default compression engine (`scripts/compress_pdf.py`) |
+| Pillow 12.3.0 | MIT-CMU (HPND) | Image resampling and JPEG encoding for compression |
+| Ghostscript 10 | ⚠ AGPL-3.0 (or Artifex commercial) | **Opt-in only** (`COMPRESS_ENGINE=ghostscript`; not in the image unless built with `WITH_AGPL_ENGINES=true`). Needs AGPL compliance or a commercial licence before it is enabled. See ADR-0007. |
+| pdf2docx 0.5.13 | MIT | Opt-in PDF → DOCX layout engine (tables, images) |
+| PyMuPDF 1.28 (pdf2docx dependency) | ⚠ AGPL-3.0 or Artifex commercial | **Opt-in only** (`PDF_TO_DOCX_ENGINE=pdf2docx`, image built with `WITH_AGPL_ENGINES=true`). The default `text` engine uses no AGPL code. See ADR-0007. |
+| python-docx 1.2.0 | MIT | DOCX from OCR text and from PDF text blocks (default PDF → DOCX engine) |
 
 ## External services
 | Service | Data sent | Configuration |

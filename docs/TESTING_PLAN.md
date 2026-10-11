@@ -8,7 +8,7 @@
 | Android JVM unit tests | JUnit 4, kotlinx-coroutines-test, Turbine-free StateFlow assertions | `android/**/src/test` | CI (`testDebugUnitTest`) |
 | Android instrumented tests | AndroidX Test, Compose UI test | `android/**/src/androidTest` | CI emulator job (API 34, x86_64) |
 | Backend unit tests | Jest | `backend/test/unit` | Locally and in CI |
-| Backend e2e tests | Jest + supertest against real Postgres, Redis, LibreOffice, Tesseract, Ghostscript, pdf2docx | `backend/test/e2e` | Locally and in CI (services) |
+| Backend e2e tests | Jest + supertest against real Postgres, Redis, LibreOffice, Tesseract, poppler, pikepdf and the opt-in Ghostscript/pdf2docx engines | `backend/test/e2e` | Locally and in CI (services) |
 
 ## 2. Coverage map (requirement → tests)
 

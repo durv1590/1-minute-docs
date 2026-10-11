@@ -10,6 +10,9 @@ COPY src ./src
 RUN npm run build && npm prune --omit=dev
 
 FROM node:22-bookworm-slim AS runtime
+# Opt-in AGPL engines (see docs/DEPENDENCY_REGISTER.md and ADR-0007). Off by default: the image then contains no AGPL code.
+# Enable only with AGPL compliance or a commercial licence, then set PDF_TO_DOCX_ENGINE=pdf2docx / COMPRESS_ENGINE=ghostscript.
+ARG WITH_AGPL_ENGINES=false
 ENV NODE_ENV=production \
     PYTHON_BIN=/opt/venv/bin/python \
     WORK_DIR=/tmp/omd-work
@@ -17,11 +20,14 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       libreoffice-writer-nogui libreoffice-draw-nogui \
       tesseract-ocr tesseract-ocr-eng tesseract-ocr-hin \
-      poppler-utils qpdf ghostscript \
+      poppler-utils qpdf \
       fonts-noto-core fonts-noto-extra fonts-dejavu-core \
       python3 python3-venv tini ca-certificates \
  && python3 -m venv /opt/venv \
- && /opt/venv/bin/pip install --no-cache-dir pdf2docx==0.5.13 python-docx==1.2.0 \
+ && /opt/venv/bin/pip install --no-cache-dir python-docx==1.2.0 pikepdf==9.4.2 Pillow==12.3.0 \
+ && if [ "$WITH_AGPL_ENGINES" = "true" ]; then \
+      apt-get install -y --no-install-recommends ghostscript && /opt/venv/bin/pip install --no-cache-dir pdf2docx==0.5.13; \
+    fi \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules

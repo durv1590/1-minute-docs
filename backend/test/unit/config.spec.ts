@@ -8,7 +8,8 @@ describe('loadConfig', () => {
     expect(c.AI_MODEL).toBe('claude-opus-5-5');
     expect(c.maxUploadBytes).toBe(50 * 1024 * 1024);
     expect(c.aiConfigured).toBe(false);
-    expect(c.PDF_TO_DOCX_ENGINE).toBe('pdf2docx');
+    expect(c.PDF_TO_DOCX_ENGINE).toBe('text');
+    expect(c.COMPRESS_ENGINE).toBe('pikepdf');
   });
 
   it('marks AI configured only with credentials', () => {
@@ -25,9 +26,14 @@ describe('loadConfig', () => {
     }
   });
 
-  it('forces an explicit PDF→Word engine choice in production', () => {
-    expect(() => loadConfig({ ...base, NODE_ENV: 'production' })).toThrow(/PDF_TO_DOCX_ENGINE/);
-    expect(loadConfig({ ...base, NODE_ENV: 'production', PDF_TO_DOCX_ENGINE: 'libreoffice' }).PDF_TO_DOCX_ENGINE).toBe('libreoffice');
+  it('defaults to engines without AGPL components and allows opting in', () => {
+    const prod = loadConfig({ ...base, NODE_ENV: 'production' });
+    expect(prod.PDF_TO_DOCX_ENGINE).toBe('text');
+    expect(prod.COMPRESS_ENGINE).toBe('pikepdf');
+    const optIn = loadConfig({ ...base, PDF_TO_DOCX_ENGINE: 'pdf2docx', COMPRESS_ENGINE: 'ghostscript' });
+    expect(optIn.PDF_TO_DOCX_ENGINE).toBe('pdf2docx');
+    expect(optIn.COMPRESS_ENGINE).toBe('ghostscript');
+    expect(() => loadConfig({ ...base, COMPRESS_ENGINE: 'magic' })).toThrow(/COMPRESS_ENGINE/);
   });
 
   it('requires a bucket for s3 storage', () => {

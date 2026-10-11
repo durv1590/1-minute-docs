@@ -54,6 +54,25 @@ export async function pdfToDocxLayout(ctx: EngineContext, input: string): Promis
   return { path: out, warnings: Array.isArray(report?.warnings) ? (report.warnings as string[]) : [] };
 }
 
+/** Text-based PDF → DOCX from poppler's text blocks (headings and paragraphs; tables/images not kept). */
+export async function pdfToDocxText(ctx: EngineContext, input: string): Promise<{ path: string; warnings: string[] }> {
+  const bbox = join(ctx.workDir, 'text-bbox.xhtml');
+  const extract = await run(ctx.config.PDFTOTEXT_BIN, ['-bbox-layout', '-enc', 'UTF-8', input, bbox], {
+    cwd: ctx.workDir,
+    timeoutMs: ctx.timeLeft(),
+    signal: ctx.signal,
+  });
+  if (extract.code !== 0) throw new ProcessingError('CONVERSION_FAILED', 'PDF to Word conversion failed for this document.');
+  const out = join(ctx.workDir, 'converted.docx');
+  const res = await run(ctx.config.PYTHON_BIN, [join(SCRIPTS_DIR, 'pdf_text_to_docx.py'), bbox, out], {
+    cwd: ctx.workDir,
+    timeoutMs: ctx.timeLeft(),
+    signal: ctx.signal,
+  });
+  if (res.code !== 0) throw new ProcessingError('CONVERSION_FAILED', 'PDF to Word conversion failed for this document.');
+  return { path: out, warnings: ['TABLES_AND_IMAGES_NOT_PRESERVED'] };
+}
+
 /** Text-based PDF → DOCX with LibreOffice's PDF import (text is placed in positioned text boxes). */
 export async function pdfToDocxLibreOffice(ctx: EngineContext, input: string): Promise<{ path: string; warnings: string[] }> {
   const src = join(ctx.workDir, 'source.pdf');
@@ -142,8 +161,27 @@ const GS_PRESETS: Record<string, string[]> = {
   small_file: ['-dPDFSETTINGS=/screen', '-dColorImageResolution=96', '-dGrayImageResolution=96'],
 };
 
+/** Compresses with the configured engine; returns the output path and the engine used. */
+export async function compressPdf(ctx: EngineContext, input: string, preset: string): Promise<{ path: string; engine: string }> {
+  return ctx.config.COMPRESS_ENGINE === 'ghostscript'
+    ? { path: await compressPdfGhostscript(ctx, input, preset), engine: 'ghostscript' }
+    : { path: await compressPdfPikepdf(ctx, input, preset), engine: 'pikepdf' };
+}
+
+/** Image downsampling/re-encoding plus stream recompression with pikepdf; no AGPL code. */
+async function compressPdfPikepdf(ctx: EngineContext, input: string, preset: string): Promise<string> {
+  const out = join(ctx.workDir, 'compressed.pdf');
+  const res = await run(ctx.config.PYTHON_BIN, [join(SCRIPTS_DIR, 'compress_pdf.py'), input, out, preset], {
+    cwd: ctx.workDir,
+    timeoutMs: ctx.timeLeft(),
+    signal: ctx.signal,
+  });
+  if (res.code !== 0) throw new ProcessingError('CONVERSION_FAILED', 'This PDF could not be compressed.');
+  return out;
+}
+
 /** Ghostscript re-distillation: recompresses/downsamples images, subsets fonts; text stays text. */
-export async function compressPdf(ctx: EngineContext, input: string, preset: string): Promise<string> {
+async function compressPdfGhostscript(ctx: EngineContext, input: string, preset: string): Promise<string> {
   const out = join(ctx.workDir, 'compressed.pdf');
   const res = await run(
     ctx.config.GS_BIN,

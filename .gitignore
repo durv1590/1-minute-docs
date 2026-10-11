@@ -27,3 +27,4 @@ backend/storage-data/
 
 # OS
 .DS_Store
+dump.rdb

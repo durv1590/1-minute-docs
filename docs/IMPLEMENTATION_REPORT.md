@@ -19,7 +19,7 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 | Suite | Where it runs | Result |
 |---|---|---|
 | `android/shared` (domain, document, imaging): 97 JUnit 5 tests | Locally and CI job `shared-kotlin` | Pass |
-| Backend unit tests (26) and e2e tests (28) against real Postgres, Redis, LibreOffice, Tesseract, Ghostscript, qpdf, pdf2docx | Locally and CI job `backend` | Pass |
+| Backend unit tests (26) and e2e tests (32) against real Postgres, Redis, LibreOffice, Tesseract, poppler, qpdf, pikepdf and the opt-in Ghostscript/pdf2docx engines | Locally and CI job `backend` | Pass |
 | Android `assembleDebug`, `lintDebug`, `testDebugUnitTest` | CI job `android` | Pass ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
 | Android instrumented tests: `PdfEngineTest` (8 tests, PdfBox/PdfRenderer/PdfDocument on a real Android runtime) and `UiJourneysTest` (3 Compose tests) | CI job `android-instrumented` (emulator API 34) | Pass: 11/11 on emulator API 34 ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
 | Physical-device manual journeys J1–J8 (`RELEASE_CHECKLIST.md`) | — | **Not run** |
@@ -32,14 +32,14 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 |---|---|---|---|
 | PDF creation (text, templates, EN/HI) | Implemented, partially verified | `TextPdfWriter` Hindi + pagination (instrumented); templates and markdown-lite (shared unit) | Layout is single-column flowing text. Hindi text renders correctly, but copy/search of Devanagari in the generated PDF can be imperfect for conjunct glyphs (the platform PDF writer maps shaped glyphs to Unicode only partially). The test asserts that Devanagari letters survive extraction, not exact words. Fonts are system Noto. Fonts are not bundled, so output depends on the OEM font set. |
 | Images → PDF | Implemented, not device-tested | Page geometry and scaling (shared unit) | JPEG re-encoding. No HEIC input on devices without a platform decoder. |
-| PDF compression | Implemented, partially verified | On device: image down-sampling with text preserved (instrumented). Cloud: Ghostscript presets (backend e2e). | Only images are recompressed; images with a transparency mask (SMask) are left untouched. Text-only PDFs rarely get smaller. When the output is not smaller, the UI says so and keeps the original. Ghostscript is AGPL (see Dependency Register). |
+| PDF compression | Implemented, partially verified | On device: image down-sampling with text preserved (instrumented). Cloud: pikepdf (default) and Ghostscript (opt-in) presets, text preserved (backend e2e). | Only images are recompressed; images with a transparency mask (SMask) are left untouched. Text-only PDFs rarely get smaller. When the output is not smaller, the UI says so and keeps the original. Ghostscript is AGPL and opt-in only (ADR-0007); the default pikepdf engine does not subset fonts. |
 | PDF merger | Implemented, partially verified | Order and orientation (instrumented) | Bookmarks and form fields from the inputs are not merged. |
 | PDF splitter | Implemented, partially verified | Page-range grammar (shared unit); split groups (instrumented) | — |
 | Page manager (rotate, reorder, delete) | Implemented, partially verified | `rebuildReordersRotatesAndDeletes` (instrumented) | — |
 | Annotate / sign (ink, text, shapes, highlight, image, drawn signature) | Implemented, partially verified | Overlay burn-in (instrumented) | Annotations are flattened into the page as an image layer. They cannot be edited later. Signatures are visual only, with no cryptographic (PAdES) signing. |
 | Protect / unlock PDF | Implemented, partially verified | AES-256 protect then unlock (instrumented) | Unlocking requires the password. No password recovery, by design. |
 | PDF → images | Implemented, not device-tested | — | PNG/JPEG via PdfRenderer. |
-| PDF → Word | Device: implemented, not device-tested. Cloud: Verified. | DOCX writer/reader (shared unit); backend pdf2docx/LibreOffice and OCR-first scanned PDFs (e2e) | On-device mode rebuilds text only and is labelled as such. Cloud layout quality depends on the engine. pdf2docx depends on PyMuPDF (AGPL). `PDF_TO_DOCX_ENGINE` must be chosen explicitly in production. |
+| PDF → Word | Device: implemented, not device-tested. Cloud: Verified. | DOCX writer/reader (shared unit); backend default text engine (headings, paragraphs, Hindi order), opt-in pdf2docx (tables) and LibreOffice, OCR-first scanned PDFs (e2e) | On-device mode rebuilds text only and is labelled as such. The default cloud engine keeps headings and paragraphs but not tables or images, and says so in its warnings. pdf2docx keeps tables but is AGPL and opt-in (ADR-0007). LibreOffice mis-orders Devanagari. |
 | Word → PDF | Cloud: Verified. App flow: implemented, not device-tested. | Backend LibreOffice DOCX/ODT/RTF → PDF with validation (e2e) | Requires internet and a deployed backend. Fidelity is LibreOffice's (fonts on the server matter). |
 | Document scanner (CameraX, edge detection, perspective, filters, multi-page) | Implemented, not device-tested | Edge/quad detection, homography, Otsu threshold (shared unit, synthetic images) | Camera behaviour, auto-detection quality and lighting robustness are unmeasured. There is no auto-capture. |
 | OCR | Device (ML Kit Latin + Devanagari): implemented, not device-tested. Cloud (Tesseract eng/hin, searchable PDF): Verified. | Backend OCR text and searchable PDF (e2e) | Accuracy has not been measured. ML Kit is aimed at printed text. |
@@ -60,4 +60,4 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 4. No live AI provider call (requires `ANTHROPIC_API_KEY`).
 5. No deployed backend. The release `API_BASE_URL` is empty until a production URL is supplied.
 6. Legal review of the privacy policy, terms and retention policy is still needed. Native-speaker review of the Hindi UI is still needed.
-7. Licensing decision on the AGPL components (PyMuPDF via pdf2docx, Ghostscript) before production use.
+7. AGPL engines (pdf2docx/PyMuPDF, Ghostscript) are off by default (ADR-0007). Enabling them needs AGPL compliance or a commercial licence.

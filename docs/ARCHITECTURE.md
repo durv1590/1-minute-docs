@@ -27,8 +27,9 @@
 │ worker process: BullMQ consumer → conversion / ocr / handwriting / compression │
 │ PostgreSQL (jobs, stored_files, ai_requests, audit_events) · Redis (queue,     │
 │ rate limits, quotas) · storage driver (local disk or S3-compatible)                    │
-│ Engines: LibreOffice (office→PDF), pdf2docx (PDF→DOCX), Tesseract (OCR,        │
-│ searchable PDF), Ghostscript (compression), AI provider adapter (Anthropic    │
+│ Engines: LibreOffice (office→PDF), poppler+python-docx (PDF→DOCX; pdf2docx    │
+│ opt-in), Tesseract (OCR, searchable PDF), pikepdf (compression; Ghostscript    │
+│ opt-in), AI provider adapter (Anthropic                                        │
 │ implementation of a provider-neutral interface) for text and handwriting      │
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -59,7 +60,7 @@ with only Maven Central, and it is also the right separation for testability. Se
 | OCR on device | ML Kit Text Recognition v2 (Latin, Devanagari) | Free, offline after model download; printed text. |
 | Handwriting | Cloud vision model through backend adapter (consented), on-device OCR as best-effort fallback | Printed-text OCR is weak on handwriting (disclosed). |
 | DOCX output | `shared/:document` DocxWriter (WordprocessingML) | Small, dependency-free, testable; Apache POI is heavy on Android. |
-| PDF→DOCX | On device: text reconstruction (labelled). Cloud: pdf2docx (layout, tables, images) or LibreOffice (configurable, licensing), Tesseract OCR for scans | |
+| PDF→DOCX | On device: text reconstruction (labelled). Cloud: text reconstruction from poppler blocks by default (headings, paragraphs, correct Devanagari); pdf2docx (tables, images; AGPL) or LibreOffice opt-in (ADR-0007); Tesseract OCR for scans | |
 | DOCX→PDF | Cloud: LibreOffice headless | Only real office layout engine available under a permissive deployment model. |
 | Scanner edges | `shared/:imaging` Sobel + contour quad search on downsampled frame; homography warp via `Matrix.setPolyToPoly` | No OpenCV dependency (size), deterministic tests. |
 

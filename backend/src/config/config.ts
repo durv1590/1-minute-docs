@@ -61,26 +61,26 @@ const schema = z
     GS_BIN: z.string().default('gs'),
     PYTHON_BIN: z.string().default('python3'),
     /**
-     * pdf2docx gives far better PDF→Word results (real paragraphs and tables) but depends on PyMuPDF, which is
-     * AGPL-3.0 or commercially licensed by Artifex. LibreOffice is MPL-2.0 but produces positioned text boxes.
-     * Production must choose explicitly (see docs/DEPENDENCY_REGISTER.md).
+     * Licensing (docs/DEPENDENCY_REGISTER.md, ADR-0007): the defaults use no AGPL component.
+     * `text` (poppler + python-docx) rebuilds headings and paragraphs, with correct Devanagari, but no tables/images.
+     * `pdf2docx` gives the best results (tables, images) but depends on PyMuPDF (AGPL-3.0 or a commercial Artifex
+     * licence). `libreoffice` (MPL-2.0) produces positioned text boxes and mis-orders Devanagari, so it is not advised
+     * for Hindi documents.
      */
-    PDF_TO_DOCX_ENGINE: z.enum(['pdf2docx', 'libreoffice']).optional(),
+    PDF_TO_DOCX_ENGINE: z.enum(['text', 'pdf2docx', 'libreoffice']).default('text'),
+    /** `pikepdf` (MPL-2.0 + Apache-2.0 qpdf) is the default; `ghostscript` (AGPL-3.0) also subsets fonts. */
+    COMPRESS_ENGINE: z.enum(['pikepdf', 'ghostscript']).default('pikepdf'),
   })
   .superRefine((c, ctx) => {
     if (c.STORAGE_DRIVER === 's3' && !c.S3_BUCKET) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['S3_BUCKET'], message: 'required when STORAGE_DRIVER=s3' });
-    }
-    if (c.NODE_ENV === 'production' && !c.PDF_TO_DOCX_ENGINE) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['PDF_TO_DOCX_ENGINE'], message: 'must be set explicitly in production (licensing decision)' });
     }
     if (c.NODE_ENV === 'production' && /change-me|example|test/i.test(c.TOKEN_SECRET)) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['TOKEN_SECRET'], message: 'looks like a placeholder' });
     }
   });
 
-export type AppConfig = Omit<z.infer<typeof schema>, 'PDF_TO_DOCX_ENGINE'> & {
-  PDF_TO_DOCX_ENGINE: 'pdf2docx' | 'libreoffice';
+export type AppConfig = z.infer<typeof schema> & {
   maxUploadBytes: number;
   aiConfigured: boolean;
   corsOrigins: string[];
@@ -98,7 +98,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const c = parsed.data;
   return {
     ...c,
-    PDF_TO_DOCX_ENGINE: c.PDF_TO_DOCX_ENGINE ?? 'pdf2docx',
     maxUploadBytes: Math.floor(c.MAX_UPLOAD_MB * 1024 * 1024),
     aiConfigured: c.AI_PROVIDER === 'anthropic' && Boolean(c.ANTHROPIC_API_KEY || c.ANTHROPIC_AUTH_TOKEN),
     corsOrigins: c.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean),

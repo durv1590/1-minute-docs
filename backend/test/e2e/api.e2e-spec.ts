@@ -147,6 +147,17 @@ describe('One-Minute Docs API (e2e)', () => {
     });
   });
 
+  /** Engines are read from the shared config object per job, so a test can switch to the opt-in (AGPL) engines. */
+  async function withEngines<T>(engines: Partial<Pick<AppConfig, 'PDF_TO_DOCX_ENGINE' | 'COMPRESS_ENGINE'>>, fn: () => Promise<T>): Promise<T> {
+    const saved = { PDF_TO_DOCX_ENGINE: config.PDF_TO_DOCX_ENGINE, COMPRESS_ENGINE: config.COMPRESS_ENGINE };
+    Object.assign(config, engines);
+    try {
+      return await fn();
+    } finally {
+      Object.assign(config, saved);
+    }
+  }
+
   describe('conversions with real engines', () => {
     it('converts DOCX to PDF (LibreOffice) and validates before COMPLETED', async () => {
       const docx = fx.docx('letter', '<h1>Leave application</h1><p>Respected Sir, please grant leave.</p><p>नमस्ते, धन्यवाद।</p><p style="page-break-before:always">Second page</p>');
@@ -165,12 +176,40 @@ describe('One-Minute Docs API (e2e)', () => {
       expect(text).toContain('नमस्ते');
     });
 
-    it('converts a text PDF to an editable DOCX with tables (pdf2docx)', async () => {
-      const pdf = fx.textPdf('report', '<h1>Quarterly Report</h1><p>Sales grew by twelve percent.</p><table border="1"><tr><th>Item</th><th>Qty</th></tr><tr><td>Pens</td><td>10</td></tr></table>');
+    it('converts a text PDF to DOCX with the default engine (text: headings, paragraphs, correct Hindi)', async () => {
+      const pdf = fx.textPdf('report-text', '<h1>Quarterly Report</h1><p>Sales grew by twelve percent.</p><p>नमस्ते दुनिया, यह अनुच्छेद है। क्षत्रिय श्रीमान प्रश्न</p>');
       const job = await submit(tokenA, 'pdf_to_docx', [pdf]);
       const { job: done } = await waitFor(tokenA, job.id);
       expect(done.status).toBe('COMPLETED');
-      expect(done.output.meta.mode).toBe('layout');
+      expect(done.output.meta).toMatchObject({ mode: 'layout', engine: 'text' });
+      expect(done.output.meta.warnings).toEqual(expect.arrayContaining(['LAYOUT_APPROXIMATE', 'TABLES_AND_IMAGES_NOT_PRESERVED']));
+      const xml = execFileSync('unzip', ['-p', fx.raw('text.docx', await download(tokenA, job.id)), 'word/document.xml']).toString('utf8');
+      expect(xml).toMatch(/<w:pStyle w:val="Heading1"\/>[\s\S]*Quarterly Report/);
+      const text = xml.replace(/<[^>]+>/g, '');
+      expect(text).toContain('Sales grew by twelve percent.');
+      expect(text).toContain('नमस्ते दुनिया, यह अनुच्छेद है। क्षत्रिय श्रीमान प्रश्न');
+    });
+
+    it('LibreOffice engine (opt-in) still converts text PDFs', async () => {
+      const pdf = fx.textPdf('report-lo', '<h1>Quarterly Report</h1><p>Sales grew by twelve percent.</p>');
+      const done = await withEngines({ PDF_TO_DOCX_ENGINE: 'libreoffice' }, async () => {
+        const job = await submit(tokenA, 'pdf_to_docx', [pdf]);
+        return { id: job.id, ...(await waitFor(tokenA, job.id)).job };
+      });
+      expect(done.status).toBe('COMPLETED');
+      expect(done.output.meta.engine).toBe('libreoffice');
+      expect(docxText(await download(tokenA, done.id)).replace(/\s+/g, ' ')).toContain('Sales grew by twelve percent');
+    });
+
+    it('converts a text PDF to an editable DOCX with tables (opt-in pdf2docx)', async () => {
+      const pdf = fx.textPdf('report', '<h1>Quarterly Report</h1><p>Sales grew by twelve percent.</p><table border="1"><tr><th>Item</th><th>Qty</th></tr><tr><td>Pens</td><td>10</td></tr></table>');
+      const done = await withEngines({ PDF_TO_DOCX_ENGINE: 'pdf2docx' }, async () => {
+        const job = await submit(tokenA, 'pdf_to_docx', [pdf]);
+        return { id: job.id, ...(await waitFor(tokenA, job.id)).job };
+      });
+      const job = { id: done.id };
+      expect(done.status).toBe('COMPLETED');
+      expect(done.output.meta).toMatchObject({ mode: 'layout', engine: 'pdf2docx' });
       expect(done.output.meta.warnings).toContain('LAYOUT_APPROXIMATE');
       const xml = execFileSync('unzip', ['-p', fx.raw('p2d.docx', await download(tokenA, job.id)), 'word/document.xml']).toString('utf8');
       expect(xml).toContain('<w:tbl>');
@@ -212,18 +251,30 @@ describe('One-Minute Docs API (e2e)', () => {
       expect(execFileSync('pdftotext', [fx.raw('s.pdf', pdf), '-']).toString()).toContain('4521');
     });
 
-    it('compresses an image-heavy PDF and reports measured sizes', async () => {
-      const pdf = fx.imageHeavyPdf('heavy');
-      const job = await submit(tokenA, 'compress_pdf', [pdf], { preset: 'small_file' });
-      const { job: done } = await waitFor(tokenA, job.id);
+    it.each(['pikepdf', 'ghostscript'] as const)('compresses an image-heavy PDF with %s and reports measured sizes', async (engine) => {
+      const pdf = fx.imageHeavyPdf(`heavy-${engine}`);
+      const done = await withEngines({ COMPRESS_ENGINE: engine }, async () => {
+        const job = await submit(tokenA, 'compress_pdf', [pdf], { preset: 'small_file' });
+        return { id: job.id, ...(await waitFor(tokenA, job.id)).job };
+      });
       expect(done.status).toBe('COMPLETED');
-      const out = await download(tokenA, job.id);
+      const out = await download(tokenA, done.id);
       const meta = done.output.meta;
+      expect(meta.engine).toBe(engine);
       expect(meta.outputBytes).toBe(out.length);
       expect(meta.originalBytes).toBe(done.inputs[0].sizeBytes);
       expect(meta.outputBytes).toBeLessThan(meta.originalBytes);
       expect(meta.notSmaller).toBe(false);
       expect(pdfPages(out)).toBe(1);
+    });
+
+    it('keeps text selectable when compressing (default engine)', async () => {
+      const pdf = fx.textPdf('textonly', '<p>Invoice 7781 for stationery</p>');
+      const job = await submit(tokenA, 'compress_pdf', [pdf], { preset: 'balanced' });
+      const { job: done } = await waitFor(tokenA, job.id);
+      expect(done.status).toBe('COMPLETED');
+      const out = await download(tokenA, job.id);
+      expect(execFileSync('pdftotext', [fx.raw('ct.pdf', out), '-']).toString()).toContain('Invoice 7781');
     });
   });
 

@@ -8,4 +8,4 @@ One-Minute Docs uses the following open-source software. Full licence texts are 
 - OkHttp (Apache License 2.0)
 - Google ML Kit Text Recognition (ML Kit Terms of Service)
 
-Cloud processing uses LibreOffice (MPL 2.0), Tesseract OCR (Apache 2.0), Ghostscript (AGPL 3.0, run as a separate server process), qpdf (Apache 2.0), Poppler utilities (GPL 2/3, separate process) and, where enabled, pdf2docx (MIT) with PyMuPDF (AGPL 3.0 or commercial licence).
+Cloud processing uses LibreOffice (MPL 2.0), Tesseract OCR (Apache 2.0), qpdf (Apache 2.0), pikepdf (MPL 2.0), Pillow (HPND), python-docx (MIT) and Poppler utilities (GPL 2/3, separate process). Only if the operator enables them: Ghostscript (AGPL 3.0) and pdf2docx (MIT) with PyMuPDF (AGPL 3.0 or commercial licence).

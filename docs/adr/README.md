@@ -7,3 +7,4 @@
 | [0004](0004-backend-stack.md) | Backend stack |
 | [0005](0005-anonymous-client-tokens.md) | Anonymous client tokens instead of accounts |
 | [0006](0006-ai-provider-adapter.md) | Provider-independent AI adapter |
+| [0007](0007-agpl-free-default-engines.md) | Default server engines contain no AGPL code |
