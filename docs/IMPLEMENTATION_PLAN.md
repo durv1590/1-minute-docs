@@ -17,6 +17,24 @@ The *Status* column is updated as work lands; see `README.md` → Implementation
 | 10 Performance | Profiling, large files, low memory, cancellation | Results recorded; no known critical crashes | Macrobenchmark module (planned), backend timings |
 | 11 Release | Tests, release build, signing docs, store listing, privacy | RC builds; tests pass; config documented | CI `bundleRelease` (unsigned unless secrets provided) |
 
+## Status (current)
+
+| Phase | Status |
+|---|---|
+| 1 Foundation | Done: docs, Gradle composite build, backend, CI (4 jobs) |
+| 2 UI foundation | Done in code; Compose smoke tests on the emulator. Tablet layouts are not yet reviewed on a device. |
+| 3 Local documents | Done in code; filter/sort unit-tested |
+| 4 Core PDF | Done; engine verified by instrumented tests |
+| 5 Scan & OCR | Done in code; imaging logic unit-tested; camera/ML Kit not device-tested |
+| 6 Handwriting | Done in code; structuring/DOCX unit-tested; backend tested with a stub provider |
+| 7 Office conversion | Done; backend e2e on real engines |
+| 8 AI creator | Done; backend tested with a stub provider; no live provider call yet |
+| 9 Hardening | Done for the backend (e2e security tests); no external pen test |
+| 10 Performance | Not started (no baselines) |
+| 11 Release | Signing/config documented; no release build signed; not published |
+
+See `IMPLEMENTATION_REPORT.md` for the evidence.
+
 ## Feature acceptance criteria (selected)
 
 **Merge PDFs** — Given N≥2 readable PDFs, output page count = Σ input pages, page i of output has the same media box and

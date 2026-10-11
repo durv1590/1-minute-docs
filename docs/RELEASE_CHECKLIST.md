@@ -4,17 +4,17 @@ Tick each item with a link to evidence (CI run, test report, screenshot). Do not
 **gate** item is ticked.
 
 ## Build (gate)
-- [ ] `./gradlew -p android/shared test` green
-- [ ] `./gradlew -p android lintDebug testDebugUnitTest assembleDebug` green in CI
-- [ ] Instrumented tests green on CI emulator (`connectedDebugAndroidTest`)
+- [x] `./gradlew -p android/shared test` green — [CI run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)
+- [x] `./gradlew -p android lintDebug testDebugUnitTest assembleDebug` green in CI — [CI run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)
+- [x] Instrumented tests green on CI emulator (`connectedDebugAndroidTest`) — [CI run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)
 - [ ] `./gradlew -p android bundleRelease` with the production upload key (see `docs/SIGNING.md`)
 - [ ] `versionCode` incremented, `versionName` set, `applicationId = com.oneminutedocs.app`
 - [ ] targetSdk meets the current Google Play requirement (verify at release time on the Play Console help page)
 - [ ] R8 release build smoke-tested on a physical device (PDFBox keep rules, ML Kit, Hilt)
 
 ## Backend (gate)
-- [ ] `npm ci && npm run lint && npm test && npm run test:e2e` green
-- [ ] `npm audit --omit=dev` reviewed; no unaddressed high/critical
+- [x] `npm ci && npm run lint && npm test && npm run test:e2e` green — [CI run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)
+- [x] `npm audit --omit=dev` reviewed; no unaddressed high/critical (CI gate `--audit-level=high`; js-yaml pinned via override)
 - [ ] Production env set: `NODE_ENV=production`, `TOKEN_SECRET` (≥32 random bytes), DB, Redis, storage, AI provider, `CORS_ORIGINS`
 - [ ] Migrations applied (`npm run migrate`)
 - [ ] Health `/api/v1/health/ready` green behind the load balancer; TLS certificate valid

@@ -1,5 +1,7 @@
 # Implementation Report
 
+Latest fully green CI: [run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337) (shared Kotlin, backend, Android build/lint/unit tests, Android instrumented tests on the emulator).
+
 Branch `claude/eloquent-knuth-xz3j16`. This report states only what has been built and what evidence exists. "Compiles" means
 the code builds and passes Android lint in GitHub Actions. It does **not** mean the feature was exercised on a device.
 
@@ -18,8 +20,8 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 |---|---|---|
 | `android/shared` (domain, document, imaging): 97 JUnit 5 tests | Locally and CI job `shared-kotlin` | Pass |
 | Backend unit tests (26) and e2e tests (28) against real Postgres, Redis, LibreOffice, Tesseract, Ghostscript, qpdf, pdf2docx | Locally and CI job `backend` | Pass |
-| Android `assembleDebug`, `lintDebug`, `testDebugUnitTest` | CI job `android` | __ANDROID__ |
-| Android instrumented tests: `PdfEngineTest` (8 tests, PdfBox/PdfRenderer/PdfDocument on a real Android runtime) and `UiJourneysTest` (3 Compose tests) | CI job `android-instrumented` (emulator API 34) | __EMULATOR__ |
+| Android `assembleDebug`, `lintDebug`, `testDebugUnitTest` | CI job `android` | Pass ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
+| Android instrumented tests: `PdfEngineTest` (8 tests, PdfBox/PdfRenderer/PdfDocument on a real Android runtime) and `UiJourneysTest` (3 Compose tests) | CI job `android-instrumented` (emulator API 34) | Pass: 11/11 on emulator API 34 ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
 | Physical-device manual journeys J1–J8 (`RELEASE_CHECKLIST.md`) | — | **Not run** |
 | Performance baselines | — | **Not measured** |
 | OCR / handwriting accuracy (CER protocol in `TESTING_PLAN.md` §4) | — | **Not measured** |
@@ -28,9 +30,9 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 
 | Feature | Status | Tests | Known limitations |
 |---|---|---|---|
-| PDF creation (text, templates, EN/HI) | Implemented, partially verified | `TextPdfWriter` Hindi + pagination (instrumented); templates and markdown-lite (shared unit) | Layout is single-column flowing text. Fonts are system Noto. Fonts are not bundled, so output depends on the OEM font set. |
+| PDF creation (text, templates, EN/HI) | Implemented, partially verified | `TextPdfWriter` Hindi + pagination (instrumented); templates and markdown-lite (shared unit) | Layout is single-column flowing text. Hindi text renders correctly, but copy/search of Devanagari in the generated PDF can be imperfect for conjunct glyphs (the platform PDF writer maps shaped glyphs to Unicode only partially). The test asserts that Devanagari letters survive extraction, not exact words. Fonts are system Noto. Fonts are not bundled, so output depends on the OEM font set. |
 | Images → PDF | Implemented, not device-tested | Page geometry and scaling (shared unit) | JPEG re-encoding. No HEIC input on devices without a platform decoder. |
-| PDF compression | Implemented, partially verified | On device: image down-sampling with text preserved (instrumented). Cloud: Ghostscript presets (backend e2e). | Text-only PDFs rarely get smaller. When the output is not smaller, the UI says so and keeps the original. Ghostscript is AGPL (see Dependency Register). |
+| PDF compression | Implemented, partially verified | On device: image down-sampling with text preserved (instrumented). Cloud: Ghostscript presets (backend e2e). | Only images are recompressed; images with a transparency mask (SMask) are left untouched. Text-only PDFs rarely get smaller. When the output is not smaller, the UI says so and keeps the original. Ghostscript is AGPL (see Dependency Register). |
 | PDF merger | Implemented, partially verified | Order and orientation (instrumented) | Bookmarks and form fields from the inputs are not merged. |
 | PDF splitter | Implemented, partially verified | Page-range grammar (shared unit); split groups (instrumented) | — |
 | Page manager (rotate, reorder, delete) | Implemented, partially verified | `rebuildReordersRotatesAndDeletes` (instrumented) | — |
