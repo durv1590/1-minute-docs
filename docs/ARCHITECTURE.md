@@ -25,8 +25,8 @@
 ┌──────────────────────── Backend (NestJS, TypeScript) ──────────────────────────┐
 │ api process:  auth (anonymous tokens) · jobs · ai · health · OpenAPI           │
 │ worker process: BullMQ consumer → conversion / ocr / handwriting / compression │
-│ PostgreSQL (jobs, stored_files, ai_requests, client_usage) · Redis (queue,     │
-│ rate limits) · storage driver (local disk or S3-compatible)                    │
+│ PostgreSQL (jobs, stored_files, ai_requests, audit_events) · Redis (queue,     │
+│ rate limits, quotas) · storage driver (local disk or S3-compatible)                    │
 │ Engines: LibreOffice (office→PDF), pdf2docx (PDF→DOCX), Tesseract (OCR,        │
 │ searchable PDF), Ghostscript (compression), AI provider adapter (Anthropic    │
 │ implementation of a provider-neutral interface) for text and handwriting      │
@@ -67,10 +67,12 @@ with only Maven Central, and it is also the right separation for testability. Se
 
 Room database `omd.db`:
 - `documents(id, displayName, mimeType, sizeBytes, pageCount?, relativePath, createdAt, modifiedAt, sourceOperation)`
-- `cloud_jobs(jobId, operation, status, inputName, createdAt, updatedAt, outputDocumentId?, errorCode?)`
+
+Cloud jobs are not persisted on the device: `CloudJobRunner` submits, polls, downloads and deletes within one operation, and a
+job interrupted by process death is left to expire on the server (retention sweeper).
 
 Files: `filesDir/documents/` (managed outputs), `cacheDir/work/<jobId>/` (temporary), `cacheDir/shared/` (FileProvider share
-copies). Temp cleanup worker deletes `work/*` older than 24 h unless the job is marked active.
+copies). Temp cleanup worker (`CleanupWorker`, WorkManager) deletes stale `work/*` and `shared/*` entries.
 
 ## 5. Backend design
 
