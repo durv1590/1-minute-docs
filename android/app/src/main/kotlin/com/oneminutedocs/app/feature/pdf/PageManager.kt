@@ -16,8 +16,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Undo
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.RestoreFromTrash
 import androidx.compose.material.icons.outlined.RotateRight
@@ -193,12 +193,12 @@ fun PageManagerScreen(onBack: () -> Unit, onDone: (OpState.Done) -> Unit, vm: Pa
                             Text("${p.sourceIndex + 1}", style = MaterialTheme.typography.labelLarge)
                         }
                         Row {
-                            IconButton(onClick = { vm.move(pos, -1) }, enabled = pos > 0) { Icon(Icons.Outlined.ArrowBack, stringResource(R.string.action_move_up)) }
+                            IconButton(onClick = { vm.move(pos, -1) }, enabled = pos > 0) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.action_move_up)) }
                             IconButton(onClick = { vm.rotate(pos) }) { Icon(Icons.Outlined.RotateRight, stringResource(R.string.action_rotate)) }
                             IconButton(onClick = { vm.toggleDelete(pos) }) {
                                 Icon(if (p.deleted) Icons.Outlined.RestoreFromTrash else Icons.Outlined.Delete, stringResource(if (p.deleted) R.string.action_restore else R.string.action_delete))
                             }
-                            IconButton(onClick = { vm.move(pos, 1) }, enabled = pos < pages.lastIndex) { Icon(Icons.Outlined.ArrowForward, stringResource(R.string.action_move_down)) }
+                            IconButton(onClick = { vm.move(pos, 1) }, enabled = pos < pages.lastIndex) { Icon(Icons.AutoMirrored.Outlined.ArrowForward, stringResource(R.string.action_move_down)) }
                         }
                     }
                 }

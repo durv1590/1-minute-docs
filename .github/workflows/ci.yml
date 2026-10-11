@@ -82,7 +82,7 @@ jobs:
           ./gradlew assembleDebug testDebugUnitTest lintDebug --continue 2>&1 | tee build.log
           status=${PIPESTATUS[0]}
           echo "::group::Error summary"
-          grep -E "^e: |^w: .*(deprecated|unused)|What went wrong|^> |FAILED|Lint found|tests completed" build.log | grep -v "^> Task .* (UP-TO-DATE|NO-SOURCE|SKIPPED)" | head -200
+          grep -E "^e: |What went wrong|^> Task .*FAILED|Lint found|tests completed|failed$" build.log | sed -E 's#file:///home/runner/work/1-minute-docs/1-minute-docs/android/##' | head -150
           echo "::endgroup::"
           exit $status
       - uses: actions/upload-artifact@v4

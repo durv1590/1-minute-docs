@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Crop
 import androidx.compose.material.icons.outlined.Delete
@@ -159,12 +159,12 @@ fun ScanReviewScreen(onBack: () -> Unit, onRetake: (String) -> Unit, onContinueH
             }
         }
         Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-            IconButton(onClick = { vm.move(page.id, -1) }) { Icon(Icons.Outlined.ArrowBack, stringResource(R.string.action_move_up)) }
+            IconButton(onClick = { vm.move(page.id, -1) }) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.action_move_up)) }
             IconButton(onClick = { cropMode = true }) { Icon(Icons.Outlined.Crop, stringResource(R.string.action_crop)) }
             IconButton(onClick = { vm.update(page.copy(rotation = (page.rotation + 90) % 360)) }) { Icon(Icons.Outlined.RotateRight, stringResource(R.string.action_rotate)) }
             IconButton(onClick = { vm.remove(page.id); onRetake(page.id) }) { Icon(Icons.Outlined.CameraAlt, stringResource(R.string.action_retake)) }
             IconButton(onClick = { vm.remove(page.id) }) { Icon(Icons.Outlined.Delete, stringResource(R.string.action_delete)) }
-            IconButton(onClick = { vm.move(page.id, 1) }) { Icon(Icons.Outlined.ArrowForward, stringResource(R.string.action_move_down)) }
+            IconButton(onClick = { vm.move(page.id, 1) }) { Icon(Icons.AutoMirrored.Outlined.ArrowForward, stringResource(R.string.action_move_down)) }
         }
         Text(stringResource(R.string.label_filter), style = MaterialTheme.typography.titleSmall)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
