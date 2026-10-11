@@ -90,7 +90,7 @@ class BackendClientTest {
     @Test fun failedJobMapsServerCode() = runBlocking {
         finalStatus = "FAILED"; errorCode = "ENCRYPTED_DOCUMENT"
         try {
-            CloudJobRunner(client()).run("compress_pdf", listOf(UploadFile(tempFile(), "a.pdf", "application/pdf")), JsonObject(emptyMap()), File.createTempFile("o", ".pdf"), 1000) {}
+            CloudJobRunner(client()).run("compress_pdf", listOf(UploadFile(tempFile(), "a.pdf", "application/pdf")), JsonObject(emptyMap()), File.createTempFile("out", ".pdf"), 1000) {}
             fail("expected failure")
         } catch (e: DocException) {
             assertEquals(ErrorCode.ENCRYPTED, e.error.code)

@@ -10,7 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.RotateRight
+import androidx.compose.material.icons.automirrored.outlined.RotateRight
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -109,7 +109,7 @@ fun ImagesToPdfScreen(onBack: () -> Unit, onDone: (OpState.Done) -> Unit, vm: Im
             Row {
                 val rot = rotations[inputs[i].file.path] ?: 0
                 if (rot != 0) Text("$rot°", style = MaterialTheme.typography.labelMedium)
-                IconButton(onClick = { vm.rotate(i) }) { Icon(Icons.Outlined.RotateRight, stringResource(R.string.action_rotate)) }
+                IconButton(onClick = { vm.rotate(i) }) { Icon(Icons.AutoMirrored.Outlined.RotateRight, stringResource(R.string.action_rotate)) }
                 IconButton(onClick = { vm.move(i, -1) }, enabled = i > 0) { Icon(Icons.Outlined.ArrowUpward, stringResource(R.string.action_move_up)) }
                 IconButton(onClick = { vm.move(i, 1) }, enabled = i < inputs.lastIndex) { Icon(Icons.Outlined.ArrowDownward, stringResource(R.string.action_move_down)) }
                 IconButton(onClick = { vm.remove(i) }) { Icon(Icons.Outlined.Close, stringResource(R.string.action_remove)) }

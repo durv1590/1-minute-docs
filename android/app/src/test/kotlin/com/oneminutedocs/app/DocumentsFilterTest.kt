@@ -41,7 +41,7 @@ class DocumentsFilterTest {
     }
 
     @Test fun detectsDocumentLanguage() {
-        assertEquals("hi", EditorViewModel.detectLanguage("यह हिंदी पाठ है with some English"))
+        assertEquals("hi", EditorViewModel.detectLanguage("यह हिंदी में लिखा गया एक लंबा पाठ है with English"))
         assertEquals("en", EditorViewModel.detectLanguage("Plain English text"))
         assertEquals(null, EditorViewModel.detectLanguage("1234 !!"))
     }

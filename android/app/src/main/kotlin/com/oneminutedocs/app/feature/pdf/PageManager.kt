@@ -20,7 +20,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.RestoreFromTrash
-import androidx.compose.material.icons.outlined.RotateRight
+import androidx.compose.material.icons.automirrored.outlined.RotateRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -194,7 +194,7 @@ fun PageManagerScreen(onBack: () -> Unit, onDone: (OpState.Done) -> Unit, vm: Pa
                         }
                         Row {
                             IconButton(onClick = { vm.movePage(pos, -1) }, enabled = pos > 0) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, stringResource(R.string.action_move_up)) }
-                            IconButton(onClick = { vm.rotate(pos) }) { Icon(Icons.Outlined.RotateRight, stringResource(R.string.action_rotate)) }
+                            IconButton(onClick = { vm.rotate(pos) }) { Icon(Icons.AutoMirrored.Outlined.RotateRight, stringResource(R.string.action_rotate)) }
                             IconButton(onClick = { vm.toggleDelete(pos) }) {
                                 Icon(if (p.deleted) Icons.Outlined.RestoreFromTrash else Icons.Outlined.Delete, stringResource(if (p.deleted) R.string.action_restore else R.string.action_delete))
                             }

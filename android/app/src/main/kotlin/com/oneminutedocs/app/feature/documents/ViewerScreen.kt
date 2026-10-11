@@ -23,7 +23,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.RotateRight
+import androidx.compose.material.icons.automirrored.outlined.RotateRight
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ZoomIn
 import androidx.compose.material.icons.outlined.ZoomOut
@@ -96,7 +96,7 @@ fun ViewerScreen(onBack: () -> Unit, vm: ViewerViewModel = hiltViewModel()) {
                 actions = {
                     IconButton(onClick = { zoom = (zoom / 1.5f).coerceAtLeast(1f) }) { Icon(Icons.Outlined.ZoomOut, stringResource(R.string.action_zoom_out)) }
                     IconButton(onClick = { zoom = (zoom * 1.5f).coerceAtMost(5f) }) { Icon(Icons.Outlined.ZoomIn, stringResource(R.string.action_zoom_in)) }
-                    IconButton(onClick = { rotation = (rotation + 90) % 360 }) { Icon(Icons.Outlined.RotateRight, stringResource(R.string.action_rotate_view)) }
+                    IconButton(onClick = { rotation = (rotation + 90) % 360 }) { Icon(Icons.AutoMirrored.Outlined.RotateRight, stringResource(R.string.action_rotate_view)) }
                 },
             )
         },

@@ -337,7 +337,7 @@ fun AnnotateScreen(onBack: () -> Unit, onDone: (OpState.Done) -> Unit, vm: Annot
         Slider(value = width, onValueChange = { width = it }, valueRange = 0.001f..0.012f)
         val sel = selected
         val selPic = sel?.let { overlays.getOrNull(it) as? Overlay.Picture }
-        if (selPic != null && sel != null) {
+        if (selPic != null) {
             Text(stringResource(R.string.annotate_picture_size))
             Slider(
                 value = selPic.right - selPic.left,
