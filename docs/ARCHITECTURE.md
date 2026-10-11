@@ -28,8 +28,8 @@
 │ PostgreSQL (jobs, stored_files, ai_requests, client_usage) · Redis (queue,     │
 │ rate limits) · storage driver (local disk or S3-compatible)                    │
 │ Engines: LibreOffice (office→PDF), pdf2docx (PDF→DOCX), Tesseract (OCR,        │
-│ searchable PDF), Ghostscript (compression), AI provider adapter (Anthropic /   │
-│ OpenAI-compatible) for generation and handwriting vision                       │
+│ searchable PDF), Ghostscript (compression), AI provider adapter (Anthropic    │
+│ implementation of a provider-neutral interface) for text and handwriting      │
 └────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -59,7 +59,7 @@ with only Maven Central, and it is also the right separation for testability. Se
 | OCR on device | ML Kit Text Recognition v2 (Latin, Devanagari) | Free, offline after model download; printed text. |
 | Handwriting | Cloud vision model through backend adapter (consented), on-device OCR as best-effort fallback | Printed-text OCR is weak on handwriting (disclosed). |
 | DOCX output | `shared/:document` DocxWriter (WordprocessingML) | Small, dependency-free, testable; Apache POI is heavy on Android. |
-| PDF→DOCX | On device: text reconstruction (labelled). Cloud: pdf2docx (layout, tables, images) with Tesseract OCR first for scans. |
+| PDF→DOCX | On device: text reconstruction (labelled). Cloud: pdf2docx (layout, tables, images) or LibreOffice (configurable, licensing), Tesseract OCR for scans | |
 | DOCX→PDF | Cloud: LibreOffice headless | Only real office layout engine available under a permissive deployment model. |
 | Scanner edges | `shared/:imaging` Sobel + contour quad search on downsampled frame; homography warp via `Matrix.setPolyToPoly` | No OpenCV dependency (size), deterministic tests. |
 
@@ -82,7 +82,7 @@ copies). Temp cleanup worker deletes `work/*` older than 24 h unless the job is 
   shell) → FINALIZING (validate output signature/size) → COMPLETED. Output stored, download streamed; `DELETE` removes files.
 - **Retention:** inputs deleted when job finishes; outputs expire (`OUTPUT_TTL_MINUTES`, default 60). A sweeper marks EXPIRED
   and deletes objects.
-- **AI:** `AiProvider` interface; `anthropic` and `openai-compatible` implementations; `none` → `AI_NOT_CONFIGURED` (503).
+- **AI:** `AiProvider` interface with an `anthropic` implementation; no provider → `AI_NOT_CONFIGURED` (503).
 - **Limits:** env-configurable; per-client daily AI quota and per-IP/client rate limiting (Redis fixed window).
 
 ## 6. Error model
