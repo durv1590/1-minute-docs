@@ -1,0 +1,10 @@
+# Terms of Service — DRAFT
+
+**Draft for legal review. Not yet in force.**
+
+1. One-Minute Docs is provided free of charge. Fair-use limits apply to cloud features to keep the service available for everyone; current limits are shown in the app.
+2. You are responsible for having the right to process the documents you use with the app. Do not use the app to remove protection from documents you are not authorised to change.
+3. Conversions, text recognition and AI drafts may contain errors. Review results before relying on them. AI output is not legal, medical or financial advice.
+4. Drawn signatures are images, not certified digital signatures.
+5. The service is provided "as is" to the extent permitted by law. [Limitation of liability and governing law to be completed by counsel.]
+6. Contact: [to be completed].
