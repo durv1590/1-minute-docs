@@ -1,0 +1,123 @@
+{
+  "measuredAt": "2026-10-11T03:02:46.948Z",
+  "env": {
+    "cpus": 4,
+    "cpuModel": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+    "memGiB": 16,
+    "node": "v22.22.0",
+    "runs": 3
+  },
+  "results": [
+    {
+      "name": "office_to_pdf · DOCX 10 pages",
+      "medianMs": 1993,
+      "minMs": 1967,
+      "maxMs": 2183,
+      "pages": 10
+    },
+    {
+      "name": "pdf_to_docx · text · text PDF 10 pages",
+      "medianMs": 455,
+      "minMs": 451,
+      "maxMs": 458,
+      "pages": 10
+    },
+    {
+      "name": "pdf_to_docx · pdf2docx · text PDF 10 pages",
+      "medianMs": 2252,
+      "minMs": 2164,
+      "maxMs": 2281,
+      "pages": 10
+    },
+    {
+      "name": "pdf_to_docx · libreoffice · text PDF 10 pages",
+      "medianMs": 8007,
+      "minMs": 7964,
+      "maxMs": 8326,
+      "pages": 10
+    },
+    {
+      "name": "pdf_to_docx · scanned page → OCR (eng+hin)",
+      "medianMs": 6654,
+      "minMs": 6631,
+      "maxMs": 6764,
+      "pages": 1
+    },
+    {
+      "name": "compress_pdf · pikepdf · balanced · 1 image page",
+      "medianMs": 1121,
+      "minMs": 1093,
+      "maxMs": 1128,
+      "originalBytes": 9314587,
+      "outputBytes": 65168,
+      "reductionPercent": 99.3
+    },
+    {
+      "name": "compress_pdf · pikepdf · small_file · 1 image page",
+      "medianMs": 1020,
+      "minMs": 995,
+      "maxMs": 1046,
+      "originalBytes": 9314587,
+      "outputBytes": 10727,
+      "reductionPercent": 99.9
+    },
+    {
+      "name": "compress_pdf · ghostscript · balanced · 1 image page",
+      "medianMs": 1450,
+      "minMs": 1427,
+      "maxMs": 1465,
+      "originalBytes": 9314587,
+      "outputBytes": 72220,
+      "reductionPercent": 99.2
+    },
+    {
+      "name": "compress_pdf · ghostscript · small_file · 1 image page",
+      "medianMs": 1323,
+      "minMs": 1320,
+      "maxMs": 1444,
+      "originalBytes": 9314587,
+      "outputBytes": 36287,
+      "reductionPercent": 99.6
+    },
+    {
+      "name": "ocr CER · English · 14px text · 150 dpi",
+      "ms": 553,
+      "cer": 0
+    },
+    {
+      "name": "ocr CER · English · 20px text · 150 dpi",
+      "ms": 560,
+      "cer": 0
+    },
+    {
+      "name": "ocr CER · English · 14px text · 300 dpi",
+      "ms": 1098,
+      "cer": 0
+    },
+    {
+      "name": "ocr CER · English · 20px text · 300 dpi",
+      "ms": 1092,
+      "cer": 0
+    },
+    {
+      "name": "ocr CER · Hindi · 14px text · 150 dpi",
+      "ms": 559,
+      "cer": 0.013
+    },
+    {
+      "name": "ocr CER · Hindi · 20px text · 150 dpi",
+      "ms": 451,
+      "cer": 0.017
+    },
+    {
+      "name": "ocr CER · Hindi · 14px text · 300 dpi",
+      "ms": 972,
+      "cer": 0.022
+    },
+    {
+      "name": "ocr CER · Hindi · 20px text · 300 dpi",
+      "ms": 1085,
+      "cer": 0.017
+    }
+  ]
+}

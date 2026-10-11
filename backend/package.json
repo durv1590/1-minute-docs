@@ -17,7 +17,8 @@
     "test": "jest --config jest.config.js --selectProjects unit",
     "test:e2e": "jest --config jest.config.js --selectProjects e2e --runInBand",
     "test:all": "jest --config jest.config.js --runInBand",
-    "openapi": "node dist/openapi-cli.js > openapi.json"
+    "openapi": "node dist/openapi-cli.js > openapi.json",
+    "bench": "jest --config jest.bench.config.js --runInBand"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.133.0",

@@ -30,7 +30,7 @@ The *Status* column is updated as work lands; see `README.md` → Implementation
 | 7 Office conversion | Done; backend e2e on real engines |
 | 8 AI creator | Done; backend tested with a stub provider; no live provider call yet |
 | 9 Hardening | Done for the backend (e2e security tests); no external pen test |
-| 10 Performance | Not started (no baselines) |
+| 10 Performance | Backend baseline measured (`docs/results/backend-baseline.md`); device baselines not started |
 | 11 Release | Signing/config documented; no release build signed; not published |
 
 See `IMPLEMENTATION_REPORT.md` for the evidence.

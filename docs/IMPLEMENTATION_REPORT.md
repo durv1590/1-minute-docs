@@ -23,8 +23,10 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 | Android `assembleDebug`, `lintDebug`, `testDebugUnitTest` | CI job `android` | Pass ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
 | Android instrumented tests: `PdfEngineTest` (8 tests, PdfBox/PdfRenderer/PdfDocument on a real Android runtime) and `UiJourneysTest` (3 Compose tests) | CI job `android-instrumented` (emulator API 34) | Pass: 11/11 on emulator API 34 ([run #9](https://github.com/durv1590/1-minute-docs/actions/runs/38105390337)) |
 | Physical-device manual journeys J1–J8 (`RELEASE_CHECKLIST.md`) | — | **Not run** |
-| Performance baselines | — | **Not measured** |
-| OCR / handwriting accuracy (CER protocol in `TESTING_PLAN.md` §4) | — | **Not measured** |
+| Backend performance baseline (job durations per engine) | Dev container, `npm run bench` → `docs/results/backend-baseline.md` | Measured |
+| Device performance baselines | — | **Not measured** |
+| Cloud OCR accuracy on clean rendered pages (Tesseract) | `npm run bench` | Measured: English 0 % CER, Hindi 1.3–2.2 % CER (best case, not photos) |
+| OCR accuracy on phone photos, handwriting accuracy, ML Kit accuracy (protocol in `TESTING_PLAN.md` §4) | — | **Not measured** |
 
 ## Feature table
 
@@ -42,21 +44,21 @@ the code builds and passes Android lint in GitHub Actions. It does **not** mean 
 | PDF → Word | Device: implemented, not device-tested. Cloud: Verified. | DOCX writer/reader (shared unit); backend default text engine (headings, paragraphs, Hindi order), opt-in pdf2docx (tables) and LibreOffice, OCR-first scanned PDFs (e2e) | On-device mode rebuilds text only and is labelled as such. The default cloud engine keeps headings and paragraphs but not tables or images, and says so in its warnings. pdf2docx keeps tables but is AGPL and opt-in (ADR-0007). LibreOffice mis-orders Devanagari. |
 | Word → PDF | Cloud: Verified. App flow: implemented, not device-tested. | Backend LibreOffice DOCX/ODT/RTF → PDF with validation (e2e) | Requires internet and a deployed backend. Fidelity is LibreOffice's (fonts on the server matter). |
 | Document scanner (CameraX, edge detection, perspective, filters, multi-page) | Implemented, not device-tested | Edge/quad detection, homography, Otsu threshold (shared unit, synthetic images) | Camera behaviour, auto-detection quality and lighting robustness are unmeasured. There is no auto-capture. |
-| OCR | Device (ML Kit Latin + Devanagari): implemented, not device-tested. Cloud (Tesseract eng/hin, searchable PDF): Verified. | Backend OCR text and searchable PDF (e2e) | Accuracy has not been measured. ML Kit is aimed at printed text. |
+| OCR | Device (ML Kit Latin + Devanagari): implemented, not device-tested. Cloud (Tesseract eng/hin, searchable PDF): Verified. | Backend OCR text and searchable PDF (e2e) | Cloud Tesseract on clean rendered pages: English 0 % CER, Hindi 1.3–2.2 % CER (`docs/results/backend-baseline.md`). Accuracy on phone photos and of ML Kit is not measured. ML Kit is aimed at printed text. |
 | Handwritten notes (outputs A–D) | Implemented, partially verified | Note structuring and DOCX outputs (shared unit); backend handwriting job with a stub provider (e2e) | Recognition quality is unmeasured. Cloud recognition needs `ANTHROPIC_API_KEY` and user consent. The device fallback (ML Kit) handles handwriting poorly, and the UI discloses this. |
 | AI document creator (generate, refine, summarise, translate, organise) | Backend: Verified with a stub provider. Real provider: not called. App: implemented, not device-tested. | Backend AI endpoints, quota, 503 when not configured (e2e); Anthropic adapter request/error mapping (unit) | No live call to the provider has been made: no API key was available. The output is a draft for the user to review. |
 | Documents library (import, rename, delete, export, share, search/sort) | Implemented, partially verified | Filter/sort logic (`DocumentsFilterTest`, JVM) | — |
-| Localization (English, Hindi) | Implemented, partially verified | 480 string keys in both locales; `hindiResourcesRender` (instrumented) | The Hindi strings are machine-assisted and need review by a native speaker. |
+| Localization (English, Hindi) | Implemented, partially verified | 480 string keys in both locales; `hindiResourcesRender` (instrumented) | Hindi strings were reviewed for grammar and consistent everyday terminology (226 of 479 revised). A native-speaker review and an on-device check for clipped labels are still recommended. |
 | Offline support | Implemented (design) | — | All tools marked OFFLINE run without network. This has not been checked in airplane mode on a device. |
 | Security | Implemented, partially verified | Backend: 401/404 cross-client, 413, 415, 429, 503, path-like names, retention sweep (e2e). Android: Keystore token cipher compiled, not device-tested. | No external penetration test. The legal documents are drafts. |
-| Performance | Not measured | — | Bounded concurrency (Semaphore), sampled bitmap decoding and page-at-a-time rendering are in place. No baselines or Macrobenchmark yet. |
+| Performance | Backend: baseline measured. Device: not measured. | `npm run bench` (`docs/results/backend-baseline.md`) | Bounded concurrency (Semaphore), sampled bitmap decoding and page-at-a-time rendering are in place. No baselines or Macrobenchmark yet. |
 | Release build / signing | Configured, not executed | — | No signing key exists, and none was generated. `bundleRelease` with the upload key is a release-time step (`docs/SIGNING.md`). The app is **not published**. |
 
 ## Not tested / open items
 
 1. No physical-device or manual journey testing (J1–J8).
-2. No measurement of performance, memory or battery.
-3. No OCR or handwriting accuracy evaluation.
+2. No device measurement of performance, memory or battery (backend baseline is in `docs/results/backend-baseline.md`).
+3. No OCR evaluation on real phone photos and no handwriting accuracy evaluation (clean-page Tesseract CER is measured).
 4. No live AI provider call (requires `ANTHROPIC_API_KEY`).
 5. No deployed backend. The release `API_BASE_URL` is empty until a production URL is supplied.
 6. Legal review of the privacy policy, terms and retention policy is still needed. Native-speaker review of the Hindi UI is still needed.
